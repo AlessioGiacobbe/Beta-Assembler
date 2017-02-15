@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPL2015 Assembler", "WindowsFormsApp1\GPL2015 Assembler.csproj", "{32643B21-F663-4547-84A5-2F7846D1D38B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPL2015 Assembler", "GPL2015 Assembler\GPL2015 Assembler.csproj", "{32643B21-F663-4547-84A5-2F7846D1D38B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

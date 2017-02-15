@@ -560,7 +560,7 @@ namespace GPL2015_Assembler
 
         public String removecomments(String inp)
         {
-            int indic = inp.LastIndexOf("//");
+            int indic = inp.LastIndexOf(";");
             if (indic > 0)
             {
                 return inp = inp.Substring(0, indic);
@@ -758,6 +758,7 @@ namespace GPL2015_Assembler
 
                     filepath = openFileDialog1.FileName;
                     String[] linee = System.IO.File.ReadAllLines(openFileDialog1.FileName);
+                    InputText.Text = "";
                     foreach (String linea in linee)
                     {
                             InputText.Text = InputText.Text + linea + System.Environment.NewLine;
