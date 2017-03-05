@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -81,28 +82,33 @@ namespace GPL2015_Assembler
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                try
-                {
-                    String[] linee = System.IO.File.ReadAllLines(openFileDialog1.FileName);
-                    operations.Text = null;
-                    operations.Text = "OpCode | Assembly"  + Environment.NewLine;
-                    foreach (String linea in linee)
-                    {
-                        String Opcode = linea.Substring(0, linea.IndexOf(' '));
-                        String Assembly = linea.Remove(0, linea.IndexOf(' ') + 1);
-                        opcodes.Add(Opcode);
-                        Assembly = Regex.Replace(Assembly, @"\s", "");
-                        AssemblyCodes.Add(Assembly);
-                        Console.Write(opcodes.Count + "lungo");
-                        operations.Text = operations.Text + Opcode + " | " + Assembly + System.Environment.NewLine;
+                openconfig(openFileDialog1.FileName);
+            }
+        }
 
-                    }
+        void openconfig(String filepath)
+        {
+            try
+            {
+                String[] linee = System.IO.File.ReadAllLines(filepath);
+                operations.Text = null;
+                operations.Text = "OpCode | Assembly" + Environment.NewLine;
+                foreach (String linea in linee)
+                {
+                    String Opcode = linea.Substring(0, linea.IndexOf(' '));
+                    String Assembly = linea.Remove(0, linea.IndexOf(' ') + 1);
+                    opcodes.Add(Opcode);
+                    Assembly = Regex.Replace(Assembly, @"\s", "");
+                    AssemblyCodes.Add(Assembly);
+                    Console.Write(opcodes.Count + "lungo");
+                    operations.Text = operations.Text + Opcode + " | " + Assembly + System.Environment.NewLine;
 
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
-                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
             }
         }
 
@@ -147,16 +153,9 @@ namespace GPL2015_Assembler
             RegA = "0";
             RegB = "0";
             RegC = "0";
-            if (checkBox1.Checked)
-            {
-                output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità con esecuzione");
-
-            }
-            else
-            {
+            
                 output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità senza esecuzione");
-
-            }
+            
             compile();
         }
 
@@ -299,30 +298,40 @@ namespace GPL2015_Assembler
 
         private void button2_Click(object sender, EventArgs e)
         {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-            string[] outstrings = outputBox.Text.Split('\n');
-            String[] towrite = new String[2];
-            towrite[0] = "v2.0 raw";
-            outstringval = "";
-            foreach (String outstring in outstrings)
+            saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.RestoreDirectory = true;
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                string outnormale = Regex.Replace(outstring, @"\s", "");
-                
-                if (outnormale != null && !outnormale.Equals("") && !outnormale.Equals(" ")) {
-                    execute(outnormale);
-                    string hexval = HexConverted(outnormale);
-                    Console.WriteLine(hexval);
-                    if(!hexval.Equals("errore di compilazione"))
+                string[] outstrings = outputBox.Text.Split('\n');
+                String[] towrite = new String[2];
+                towrite[0] = "v2.0 raw";
+                outstringval = "";
+                foreach (String outstring in outstrings)
+                {
+                    string outnormale = Regex.Replace(outstring, @"\s", "");
+
+                    if (outnormale != null && !outnormale.Equals("") && !outnormale.Equals(" "))
                     {
-                        outstringval = outstringval + hexval + " ";
+                        execute(outnormale);
+                        string hexval = HexConverted(outnormale);
+                        Console.WriteLine(hexval);
+                        if (!hexval.Equals("errore di compilazione"))
+                        {
+                            outstringval = outstringval + hexval + " ";
+                        }
+
                     }
-                    
                 }
+                Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\out");
+                towrite[1] = outstringval;
+                System.IO.File.WriteAllLines(saveFileDialog.FileName, towrite);
+                Console.WriteLine("salvato");
             }
-            Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\out");
-            towrite[1] = outstringval;
-            System.IO.File.WriteAllLines(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\out", towrite);
-            Console.WriteLine("salvato");
+            
         }
 
 
@@ -339,12 +348,7 @@ namespace GPL2015_Assembler
 
                 string asscode;
                 string lineanormale = Regex.Replace(linea, @"\s", "");
-                    if (checkBox1.Checked)
-                    {
-                        if (specialJp(lineanormale)) { output.ShowMessage("Jump trovato"); Jpaddr(lineanormale); break; }
-                        if (specialJPP(lineanormale) && operationpositive(lastop)) { output.ShowMessage("Jump positivo trovato"); Jpaddr(lineanormale); break; }
-                        if (specialJPM(lineanormale) && operationnegative(lastop)) { output.ShowMessage("Jump negativo trovato"); Jpaddr(lineanormale); break; }
-                    }
+                   
 
                     if (specialLoad(lineanormale) || specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) )
                     {
@@ -394,12 +398,6 @@ namespace GPL2015_Assembler
                 string asscode;
                 string lineanormale = Regex.Replace(linea, @"\s", "");
                 lineanormale = removecomments(lineanormale);
-                if (checkBox1.Checked)
-                {
-                    if (specialJp(lineanormale)) { output.ShowMessage("Jump trovato"); Jpaddr(lineanormale); break; }
-                    if(specialJPP(lineanormale) && operationpositive(lastop)) { output.ShowMessage("Jump positivo trovato"); Jpaddr(lineanormale); break; }
-                    if (specialJPM(lineanormale) && operationnegative(lastop)) { output.ShowMessage("Jump negativo trovato"); Jpaddr(lineanormale); break; }
-                }
                
                 if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) )
                 {
@@ -516,10 +514,7 @@ namespace GPL2015_Assembler
 
         void outa()
         {
-            if (checkBox1.Checked)
-            {
-                output.ShowMessage(">> A =" + RegA);
-            }
+           
         }
 
         void decb()
@@ -570,31 +565,10 @@ namespace GPL2015_Assembler
 
         void ina()
         {
-            if (checkBox1.Checked)
-            {
-                inputform input = new inputform();
-            DialogResult res = input.ShowDialog();
-            if(res == DialogResult.OK)
-            {
-                
-
-                    int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,"));
-                    outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-                    outputBox.Text = outputBox.Text + input.GetData + Environment.NewLine;
-
-                    output.ShowMessage(input.GetData);
-                    RegA = input.GetData;
-                    lastop = "A";
-               
-            }
-            }
-            else
-            {
-
+          
                 int indice = AssemblyCodes.FindIndex(x => x.StartsWith("INA"));
                 outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-            }
+            
         }
 
         void addab()
@@ -739,6 +713,23 @@ namespace GPL2015_Assembler
             {
                 return "errore di compilazione";
             }
+        }
+
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            configdownload();
+        }
+
+        void configdownload()
+        {
+
+            String url = "https://raw.githubusercontent.com/AlessioGiacobbe/Microprocessor-2017/master/config";
+                     
+            WebClient myWebClient = new WebClient();
+            myWebClient.DownloadFile(url, Path.GetTempPath() + "config");
+
+            openconfig(Path.GetTempPath() + "config");
+            
         }
 
         private void Inputlabel_Click(object sender, EventArgs e)
