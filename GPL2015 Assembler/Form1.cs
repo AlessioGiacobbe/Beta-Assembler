@@ -36,6 +36,8 @@ namespace GPL2015_Assembler
             this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
             this.DragDrop += new DragEventHandler(Form1_DragDrop);
+
+            InputText.AcceptsTab = true;
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -72,7 +74,6 @@ namespace GPL2015_Assembler
         
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Stream myStream = null;
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.InitialDirectory = "c:\\";
@@ -174,7 +175,7 @@ namespace GPL2015_Assembler
                     //String addrbin = Convert.ToString(addr, 2);
                     return bin;
                 }
-                catch (System.ArgumentOutOfRangeException e)
+                catch (System.ArgumentOutOfRangeException)
                 {
                     return lab + "JUMP";
                 }
@@ -709,7 +710,7 @@ namespace GPL2015_Assembler
             {
                 string strHex = Convert.ToInt32(strBinary, 2).ToString("X");
                 return strHex;
-            }catch(Exception e)
+            }catch(Exception )
             {
                 return "errore di compilazione";
             }
@@ -734,7 +735,6 @@ namespace GPL2015_Assembler
 
         private void Inputlabel_Click(object sender, EventArgs e)
         {
-            Stream myStream = null;
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.InitialDirectory = "c:\\";
