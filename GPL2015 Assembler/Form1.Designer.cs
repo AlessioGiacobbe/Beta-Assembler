@@ -101,7 +101,7 @@
             this.Inputlabel.Size = new System.Drawing.Size(31, 13);
             this.Inputlabel.TabIndex = 1;
             this.Inputlabel.Text = "Input";
-            this.Inputlabel.Click += new System.EventHandler(this.Inputlabel_Click);
+            this.Inputlabel.Click += new System.EventHandler(this.Inputlabel_Click_1);
             // 
             // InputText
             // 

@@ -42,6 +42,7 @@
             this.outbox.Name = "outbox";
             this.outbox.Size = new System.Drawing.Size(685, 161);
             this.outbox.TabIndex = 0;
+            this.outbox.TextChanged += new System.EventHandler(this.outbox_TextChanged);
             // 
             // outputlabel
             // 

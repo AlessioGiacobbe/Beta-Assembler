@@ -28,5 +28,10 @@ namespace GPL2015_Assembler
         {
 
         }
+
+        private void outbox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

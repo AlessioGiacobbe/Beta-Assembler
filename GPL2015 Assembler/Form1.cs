@@ -16,15 +16,20 @@ namespace GPL2015_Assembler
     public partial class Form1 : Form
     {
         public String filepath;
-        string RegA, RegB, RegC;
         Output output;
         string outstringval;
-        string lastop;
         public List<String> opcodes = new List<string>();
         public List<String> AssemblyCodes = new List<string>();
         public List<String> Labels = new List<string>();
         public List<String> lines = new List<string>();
         public List<String> outputlines = new List<string>();
+
+
+        public List<String> labelname = new List<string>();
+        public List<String> labelindex = new List<string>();
+
+
+
         public Form1()
         {
             InitializeComponent();
@@ -142,7 +147,9 @@ namespace GPL2015_Assembler
                 cont++;
                 string lineanormale = Regex.Replace(linea, @"\s", "");
 
-                if (specialloop(lineanormale, cont))
+
+                var special = specialloop(lineanormale);
+                if (special.Item1)
                 {
                     output.ShowMessage("trovata etichetta alla linea, " + cont);
                 }
@@ -169,17 +176,15 @@ namespace GPL2015_Assembler
             lines.Clear();
             Labels.Clear();
             outputlines.Clear();
+            labelname.Clear();
+            labelindex.Clear();
 
             Preload();
-            RegA = "0";
-            RegB = "0";
-            RegC = "0";
-            
-                output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità senza esecuzione");
+            output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità senza esecuzione");
             
             compile();
         }
-
+        
         public String resolvelabel(String lab)
         {
             int indice = -1;
@@ -202,7 +207,7 @@ namespace GPL2015_Assembler
             }
             else
             {
-                return "xxxx";
+                return "xxxx" + lab;
             }
         }
 
@@ -256,32 +261,46 @@ namespace GPL2015_Assembler
             }
         }
 
-        public bool specialloop(string operation, int line)
+        /* public bool specialloop(string operation, int line)
+           {
+               if (operation.Contains(":"))
+               {
+                   String load = operation.Replace(":", "");       //line++
+
+                   int indice = -1;
+                   indice = Labels.FindIndex(x => x.Equals(load))  ;
+                   if(indice == -1)
+                   {
+                       Labels.Add(load);
+                       //String linebinary = Convert.ToString(line++, 2);
+                       line++;
+                       lines.Add(line.ToString());
+                       return true;
+                   }
+                   else
+                   {
+                       output.ShowMessage("Già trovata questa etichetta : " + load);
+                       return false;
+                   }
+
+               }
+               else
+               {
+                   return false;
+               }
+           }*/
+
+        public Tuple<bool, String> specialloop(String operation)
         {
             if (operation.Contains(":"))
             {
-                String load = operation.Replace(":", "");       //line++
+                operation = operation.Replace(":", "");
+                return Tuple.Create(true, operation);
 
-                int indice = -1;
-                indice = Labels.FindIndex(x => x.Equals(load))  ;
-                if(indice == -1)
-                {
-                    Labels.Add(load);
-                    //String linebinary = Convert.ToString(line++, 2);
-                    line++;
-                    lines.Add(line.ToString());
-                    return true;
-                }
-                else
-                {
-                    output.ShowMessage("Già trovata questa etichetta : " + load);
-                    return false;
-                }
-                
             }
             else
             {
-                return false;
+                return Tuple.Create(false, "");
             }
         }
 
@@ -375,53 +394,17 @@ namespace GPL2015_Assembler
 
 
 
-        public void compile(int offset)
-        {
-            int cont = -1;
-            string[] inputstrings = InputText.Text.Split('\n');
-            foreach (String linea in inputstrings)
-            {
-                cont++;
-                if(cont>= offset)
-                {
-
-                string asscode;
-                string lineanormale = Regex.Replace(linea, @"\s", "");
-                   
-
-                    if (specialLoad(lineanormale) || specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) )
-                    {
-                        execute(lineanormale);
-                    }
-                    else
-                {
-                    asscode = containsasscode(lineanormale);
-                        if (asscode.Equals("INA"))
-                        {
-                            execute(lineanormale);
-                        }
-                        else if (asscode != "no")
-                    {
-                        execute(lineanormale);
-                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith(asscode));
-                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-                    }
-                }
-
-                }
-            }
-        }
 
         public void postcompile()
         {
-            foreach(String eti in Labels)
+            int index = 0;
+           foreach(String lb in labelname)
             {
-                int indice = Labels.FindIndex(x => x.Equals(eti));
-                int toreplace = int.Parse(lines[indice]);
-                toreplace = toreplace + 2;
-                String bin = Convert.ToString(toreplace, 2);
-                outputBox.Text = outputBox.Text.Replace(eti + "JUMP", bin);
-
+                int ind = int.Parse(labelindex[index]);
+                string bin = Convert.ToString(ind, 2);
+                bin = bitconvert(bin);
+                outputBox.Text = outputBox.Text.Replace("xxxx" + lb, bin);
+                    index++;
             }
         }
 
@@ -434,11 +417,27 @@ namespace GPL2015_Assembler
             {
                 cont++;
                 outputlines.Add(countline().ToString());
+                int cnt = countoutline();
+                output.ShowMessage(cont + " linea " + cnt);
+
+                
+
+
                 string asscode;
                 string lineanormale = Regex.Replace(linea, @"\s", "");
+                var spec = specialloop(lineanormale);
+                if (spec.Item1)
+                {
+                    output.ShowMessage("etichetta " + spec.Item2 + " si apre alla linea" + cnt);
+                    labelname.Add(spec.Item2);
+                    labelindex.Add(cnt.ToString());
+                }
+
                 lineanormale = removecomments(lineanormale);
+
                
-                if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) )
+
+                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) )
                 {
                     execute(lineanormale);
                 }
@@ -461,6 +460,19 @@ namespace GPL2015_Assembler
 
             postcompile();
         }
+
+        private int countoutline()
+        {
+            string[] outstring = outputBox.Text.Split('\n');
+            int ct = -1;
+            foreach (String linea in outstring)
+            {
+                ct++;
+            }
+
+            return ct;
+        }
+
         public void execute (string operation)
         {
             if(opcodes.Count != 0){
@@ -473,7 +485,7 @@ namespace GPL2015_Assembler
                     outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
 
                     outputBox.Text = outputBox.Text +  bitconvert(operation.Replace("LDA,", "")) + Environment.NewLine;
-                    RegA = operation.Replace("LDA,", "");
+                    
                 }
                 else if (specialJp(operation))
                 {
@@ -509,16 +521,12 @@ namespace GPL2015_Assembler
                         case "HALT":
                             break;
                         case "LDA,B":
-                            ldab();
                             break;
                         case "LDA,C":
-                            ldac();
                             break;
                         case "LDB,A":
-                            ldba();
                             break;
                         case "LDC,A":
-                            ldca();
                             break;
                         case "ADDA,B":
                             addab();
@@ -533,13 +541,10 @@ namespace GPL2015_Assembler
                             subac();
                             break;
                         case "INCB":
-                            incb();
                             break;
                         case "OUTA":
-                            outa();
                             break;
                         case "DECB":
-                            decb();
                             break;
                     }
                 }
@@ -549,54 +554,8 @@ namespace GPL2015_Assembler
             
         }
 
-        void incb()
-        {
-            int reg = toint(RegB.ToString());
-            reg++;
-            RegB = Convert.ToString(reg, 2);
-            lastop = "B";
-        }
-
-        void outa()
-        {
-           
-        }
-
-        void decb()
-        {
-            int reg = toint(RegB.ToString());
-            reg--;
-            RegB = Convert.ToString(reg, 2);
-            lastop = "B";
-
-        }
-        void ldab()
-        {
-            RegA = RegB;
-            lastop = "A";
-
-        }
-
-        void ldac()
-        {
-            RegA = RegC;
-            lastop = "A";
-
-        }
-
-        void ldba()
-        {
-            RegB = RegA;
-            lastop = "B";
-
-        }
-
-        void ldca()
-        {
-            RegC = RegA;
-            lastop = "C";
-
-        }
+        
+       
 
         public String removecomments(String inp)
         {
@@ -616,35 +575,23 @@ namespace GPL2015_Assembler
             
         }
 
+       
+
         void addab()
         {
-            int rega = toint(RegA.ToString());
-            int regb = toint(RegB.ToString());
-            rega = rega + regb;
-            RegA = Convert.ToString(rega, 2);
-            lastop = "A";
-
             //RegA = RegA + RegB;
         }
 
         void addac()
         {
-            int rega = toint(RegA.ToString());
-            int regc = toint(RegC.ToString());
-            rega = rega + regc;
-            RegA = Convert.ToString(rega, 2);
-            lastop = "A";
+           
 
             //RegA = RegA + RegC;
         }
 
         void subac()
         {
-            int rega = toint(RegA.ToString());
-            int regc = toint(RegC.ToString());
-            rega = rega - regc;
-            RegA = Convert.ToString(rega, 2);
-            lastop = "A";
+            
 
             // RegA = RegA - RegC;
         }
@@ -657,95 +604,13 @@ namespace GPL2015_Assembler
 
         void Jpaddr(string operation)
         {
-                if (specialJp(operation))
-                {
-                    String tojump = operation.Replace("JP", "");
-                    int offset = Convert.ToInt32(tojump, 2);
-                    compile(offset);
-                }
-                else if (specialJPP(operation))
-                {
-                    String tojump = operation.Replace("JPP,", "");
-                    if (operationpositive(lastop))
-                    {
-                        int offset = Convert.ToInt32(tojump, 2);
-                        compile(offset);
-                    }
-                }
-                else
-                {
-                    String tojump = operation.Replace("JPM,", "");
-                    if (operationnegative(lastop))
-                    {
-                        int offset = Convert.ToInt32(tojump, 2);
-                        compile(offset);
-                    }
-                }
+               
            
             
         }
+        
 
 
-        public bool operationnegative(String operation)
-        {
-            switch (operation)
-            {
-                case "A":
-                    if (toint(RegA) < 0)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                case "B":
-                    if (toint(RegB) < 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                case "C":
-                    if (toint(RegC) < 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                default:
-                    return false;
-            }
-        }
-
-
-        public bool operationpositive(string operation)
-        {
-            switch (operation)
-            {
-                case "A":
-                    if (toint(RegA) > 0)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                    return false;
-                    }
-                case "B":
-                    if (toint(RegB) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                case "C":
-                    if (toint(RegC) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                default:
-                    return false;
-            }
-        }
         
 
         string HexConverted(string strBinary)
@@ -763,6 +628,38 @@ namespace GPL2015_Assembler
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             configdownload();
+        }
+
+        private void Inputlabel_Click_1(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+            openFileDialog1.InitialDirectory = "c:\\";
+            openFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.RestoreDirectory = true;
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+
+                    filepath = openFileDialog1.FileName;
+                    String[] linee = System.IO.File.ReadAllLines(openFileDialog1.FileName);
+                    InputText.Text = "";
+                    foreach (String linea in linee)
+                    {
+                        InputText.Text = InputText.Text + linea + System.Environment.NewLine;
+
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                }
+            }
         }
 
         void configdownload()
