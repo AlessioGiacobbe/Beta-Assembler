@@ -27,6 +27,7 @@ namespace GPL2015_Assembler
 
         public List<String> labelname = new List<string>();
         public List<String> labelindex = new List<string>();
+        public List<int> inputToOutput = new List<int>();
 
 
 
@@ -41,6 +42,8 @@ namespace GPL2015_Assembler
             this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
             this.DragDrop += new DragEventHandler(Form1_DragDrop);
+
+            
 
             configdownload();
             InputText.AcceptsTab = true;
@@ -261,35 +264,7 @@ namespace GPL2015_Assembler
             }
         }
 
-        /* public bool specialloop(string operation, int line)
-           {
-               if (operation.Contains(":"))
-               {
-                   String load = operation.Replace(":", "");       //line++
-
-                   int indice = -1;
-                   indice = Labels.FindIndex(x => x.Equals(load))  ;
-                   if(indice == -1)
-                   {
-                       Labels.Add(load);
-                       //String linebinary = Convert.ToString(line++, 2);
-                       line++;
-                       lines.Add(line.ToString());
-                       return true;
-                   }
-                   else
-                   {
-                       output.ShowMessage("Già trovata questa etichetta : " + load);
-                       return false;
-                   }
-
-               }
-               else
-               {
-                   return false;
-               }
-           }*/
-
+       
         public Tuple<bool, String> specialloop(String operation)
         {
             if (operation.Contains(":"))
@@ -418,9 +393,10 @@ namespace GPL2015_Assembler
                 cont++;
                 outputlines.Add(countline().ToString());
                 int cnt = countoutline();
-                output.ShowMessage(cont + " linea " + cnt);
+               // output.ShowMessage(cont + " linea " + cnt);
 
-                
+                inputToOutput.Add(cnt);
+
 
 
                 string asscode;
@@ -473,6 +449,17 @@ namespace GPL2015_Assembler
             return ct;
         }
 
+        public bool checkbinary(String str)
+        {
+            foreach(char c in str)
+            {
+                if(c != '0' && c != '1')
+                { return false; }
+            }
+
+            return true;
+        }
+
         public void execute (string operation)
         {
             if(opcodes.Count != 0){
@@ -483,9 +470,17 @@ namespace GPL2015_Assembler
 
                     int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,n"));
                     outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-                    outputBox.Text = outputBox.Text +  bitconvert(operation.Replace("LDA,", "")) + Environment.NewLine;
                     
+                    if(checkbinary(operation.Replace("LDA,", "")))
+                    {
+                        outputBox.Text = outputBox.Text + bitconvert(operation.Replace("LDA,", "")) + Environment.NewLine;
+                    }
+                    else
+                    {
+                        string bin = Convert.ToString(int.Parse(operation.Replace("LDA,", "")), 2);
+                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                    }
+
                 }
                 else if (specialJp(operation))
                 {
@@ -621,7 +616,7 @@ namespace GPL2015_Assembler
                 return strHex;
             }catch(Exception )
             {
-                return "errore di compilazione";
+                return "errore";
             }
         }
 
@@ -706,5 +701,31 @@ namespace GPL2015_Assembler
             }
         }
 
+        
+
+        private void detectchange(object sender, EventArgs e)
+        {
+            int currentline = InputText.GetLineFromCharIndex(InputText.SelectionStart);
+            linecount.Text = "Linea : " + currentline;
+           
+
+            if (inputToOutput.Count > currentline)
+            {
+                outputBox.SelectAll();
+                outputBox.SelectionColor = Color.Black;
+                int charindex = outputBox.GetFirstCharIndexFromLine(inputToOutput[currentline]);
+                
+                outputBox.Select(charindex, 4);
+                
+
+                outputBox.SelectionColor = Color.Blue;
+
+            }
+
+        }
+
+
+
+       
     }
 }

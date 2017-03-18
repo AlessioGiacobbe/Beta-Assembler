@@ -28,11 +28,12 @@
             this.SaveBtn = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.linecount = new System.Windows.Forms.Label();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.Inputlabel = new System.Windows.Forms.Label();
             this.InputText = new System.Windows.Forms.TextBox();
+            this.outputBox = new System.Windows.Forms.RichTextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.outputBox = new System.Windows.Forms.TextBox();
             this.operations = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
@@ -73,17 +74,28 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.linecount);
             this.splitContainer1.Panel1.Controls.Add(this.splitter1);
             this.splitContainer1.Panel1.Controls.Add(this.Inputlabel);
             this.splitContainer1.Panel1.Controls.Add(this.InputText);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.outputBox);
+            this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Size = new System.Drawing.Size(598, 337);
             this.splitContainer1.SplitterDistance = 296;
             this.splitContainer1.TabIndex = 3;
+            // 
+            // linecount
+            // 
+            this.linecount.AutoSize = true;
+            this.linecount.ForeColor = System.Drawing.SystemColors.AppWorkspace;
+            this.linecount.Location = new System.Drawing.Point(231, 3);
+            this.linecount.Name = "linecount";
+            this.linecount.Size = new System.Drawing.Size(42, 13);
+            this.linecount.TabIndex = 3;
+            this.linecount.Text = "Linea : ";
             // 
             // splitter1
             // 
@@ -112,6 +124,23 @@
             this.InputText.Name = "InputText";
             this.InputText.Size = new System.Drawing.Size(289, 315);
             this.InputText.TabIndex = 0;
+            this.InputText.CursorChanged += new System.EventHandler(this.detectchange);
+            this.InputText.TextChanged += new System.EventHandler(this.detectchange);
+            this.InputText.Enter += new System.EventHandler(this.detectchange);
+            this.InputText.KeyDown += new System.Windows.Forms.KeyEventHandler(this.detectchange);
+            this.InputText.KeyUp += new System.Windows.Forms.KeyEventHandler(this.detectchange);
+            this.InputText.MouseCaptureChanged += new System.EventHandler(this.detectchange);
+            // 
+            // outputBox
+            // 
+            this.outputBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.outputBox.Location = new System.Drawing.Point(5, 19);
+            this.outputBox.Name = "outputBox";
+            this.outputBox.Size = new System.Drawing.Size(290, 315);
+            this.outputBox.TabIndex = 2;
+            this.outputBox.Text = "";
             // 
             // label2
             // 
@@ -121,16 +150,6 @@
             this.label2.Size = new System.Drawing.Size(39, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = "Output";
-            // 
-            // outputBox
-            // 
-            this.outputBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputBox.Location = new System.Drawing.Point(5, 19);
-            this.outputBox.Multiline = true;
-            this.outputBox.Name = "outputBox";
-            this.outputBox.Size = new System.Drawing.Size(290, 315);
-            this.outputBox.TabIndex = 2;
             // 
             // operations
             // 
@@ -222,13 +241,14 @@
         private System.Windows.Forms.Label Inputlabel;
         private System.Windows.Forms.TextBox InputText;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox outputBox;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.TextBox operations;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.LinkLabel linkLabel2;
+        private System.Windows.Forms.Label linecount;
+        private System.Windows.Forms.RichTextBox outputBox;
     }
 }
 
