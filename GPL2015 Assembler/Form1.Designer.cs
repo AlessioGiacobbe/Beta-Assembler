@@ -39,6 +39,7 @@
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.button2 = new System.Windows.Forms.Button();
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.carica = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -47,7 +48,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 18);
+            this.button1.Location = new System.Drawing.Point(12, 22);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(63, 31);
             this.button1.TabIndex = 0;
@@ -57,7 +58,7 @@
             // 
             // SaveBtn
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(12, 55);
+            this.SaveBtn.Location = new System.Drawing.Point(12, 96);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Size = new System.Drawing.Size(63, 34);
             this.SaveBtn.TabIndex = 2;
@@ -184,7 +185,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(12, 95);
+            this.button2.Location = new System.Drawing.Point(12, 136);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(63, 61);
             this.button2.TabIndex = 7;
@@ -205,11 +206,22 @@
             this.linkLabel2.Text = "scarica la configurazione standard";
             this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
             // 
+            // carica
+            // 
+            this.carica.Location = new System.Drawing.Point(12, 59);
+            this.carica.Name = "carica";
+            this.carica.Size = new System.Drawing.Size(63, 31);
+            this.carica.TabIndex = 9;
+            this.carica.Text = "Carica";
+            this.carica.UseVisualStyleBackColor = true;
+            this.carica.Click += new System.EventHandler(this.carica_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(697, 544);
+            this.Controls.Add(this.carica);
             this.Controls.Add(this.linkLabel2);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.linkLabel1);
@@ -249,6 +261,7 @@
         private System.Windows.Forms.LinkLabel linkLabel2;
         private System.Windows.Forms.Label linecount;
         private System.Windows.Forms.RichTextBox outputBox;
+        private System.Windows.Forms.Button carica;
     }
 }
 

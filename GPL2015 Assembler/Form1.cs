@@ -86,13 +86,13 @@ namespace GPL2015_Assembler
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-                saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                saveFileDialog.FilterIndex = 2;
+                saveFileDialog.Filter = "GPL2015 Assembler (*.asm)|*.asm|txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveFileDialog.FilterIndex = 0;
                 saveFileDialog.RestoreDirectory = true;
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    System.IO.StreamWriter writer = new System.IO.StreamWriter(saveFileDialog.FileName + ".txt");
+                    System.IO.StreamWriter writer = new System.IO.StreamWriter(saveFileDialog.FileName);
                     writer.Write(InputText.Text);
                     writer.Close();
                     writer.Dispose();
@@ -221,9 +221,12 @@ namespace GPL2015_Assembler
             if (operation.Contains("LDA,"))
             {
                 String load = operation.Replace("LDA,", "");
+                string bin = Convert.ToString(int.Parse(load), 2);
+
                 if (load != "B" && load != "C")
                 {
-                    return System.Text.RegularExpressions.Regex.IsMatch(load, @"\A\b[0-9a-fA-F]+\b\Z");
+                    int res = 0;
+                    return int.TryParse(load, out res);
                 }
                 else { return false; }
             }
@@ -334,7 +337,7 @@ namespace GPL2015_Assembler
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
             saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-            saveFileDialog.FilterIndex = 2;
+            saveFileDialog.FilterIndex = 0;
             saveFileDialog.RestoreDirectory = true;
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -359,7 +362,6 @@ namespace GPL2015_Assembler
 
                     }
                 }
-                Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\out");
                 towrite[1] = outstringval;
                 System.IO.File.WriteAllLines(saveFileDialog.FileName, towrite);
                 Console.WriteLine("salvato");
@@ -460,6 +462,24 @@ namespace GPL2015_Assembler
             return true;
         }
 
+        public String onecomplement(String bin)
+        {
+            String ret = "";
+            foreach(char c in bin)
+            {
+                if (c == '0')
+                {
+                    ret = ret + "1";
+                }
+                else
+                {
+                    ret = ret + "0";
+                }
+            }
+
+            return ret;
+        }
+
         public void execute (string operation)
         {
             if(opcodes.Count != 0){
@@ -471,7 +491,20 @@ namespace GPL2015_Assembler
                     int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,n"));
                     outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
                     
-                    if(checkbinary(operation.Replace("LDA,", "")))
+                    if(int.Parse(operation.Replace("LDA,", "")) < 0)
+                    {
+                        String num = operation.Replace("LDA,", "");
+                        num = num.Replace("-", "");
+                        string bin = Convert.ToString(int.Parse(num), 2);
+                        bin = onecomplement(bitconvert(bin));
+
+                        int dec = Convert.ToInt32(bin, 2);
+                        dec++;
+                        String final = Convert.ToString(dec, 2);
+                        outputBox.Text = outputBox.Text + final + Environment.NewLine;
+
+                    }
+                    else if (checkbinary(operation.Replace("LDA,", "")))
                     {
                         outputBox.Text = outputBox.Text + bitconvert(operation.Replace("LDA,", "")) + Environment.NewLine;
                     }
@@ -627,11 +660,16 @@ namespace GPL2015_Assembler
 
         private void Inputlabel_Click_1(object sender, EventArgs e)
         {
+            loadfile();
+        }
+
+        public void loadfile()
+        {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.InitialDirectory = "c:\\";
-            openFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.Filter = "GPL2015 Assembler (*.asm)|*.asm|txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 0;
             openFileDialog1.RestoreDirectory = true;
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
@@ -669,37 +707,7 @@ namespace GPL2015_Assembler
             
         }
 
-        private void Inputlabel_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            openFileDialog1.InitialDirectory = "c:\\";
-            openFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-            openFileDialog1.FilterIndex = 2;
-            openFileDialog1.RestoreDirectory = true;
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-
-                    filepath = openFileDialog1.FileName;
-                    String[] linee = System.IO.File.ReadAllLines(openFileDialog1.FileName);
-                    InputText.Text = "";
-                    foreach (String linea in linee)
-                    {
-                            InputText.Text = InputText.Text + linea + System.Environment.NewLine;
-                        
-
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
-                }
-            }
-        }
+        
 
         
 
@@ -724,8 +732,9 @@ namespace GPL2015_Assembler
 
         }
 
-
-
-       
+        private void carica_Click(object sender, EventArgs e)
+        {
+            loadfile();
+        }
     }
 }
