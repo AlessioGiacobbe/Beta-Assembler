@@ -181,6 +181,7 @@ namespace GPL2015_Assembler
             outputlines.Clear();
             labelname.Clear();
             labelindex.Clear();
+            inputToOutput.Clear();
 
             Preload();
             output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità senza esecuzione");
@@ -221,7 +222,7 @@ namespace GPL2015_Assembler
             if (operation.Contains("LDA,"))
             {
                 String load = operation.Replace("LDA,", "");
-                string bin = Convert.ToString(int.Parse(load), 2);
+                //string bin = Convert.ToString(int.Parse(load), 2);
 
                 if (load != "B" && load != "C")
                 {
