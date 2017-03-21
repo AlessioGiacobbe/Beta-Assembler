@@ -181,6 +181,7 @@ namespace GPL2015_Assembler
             outputlines.Clear();
             labelname.Clear();
             labelindex.Clear();
+            inputToOutput.Clear();
 
             Preload();
             output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità senza esecuzione");
