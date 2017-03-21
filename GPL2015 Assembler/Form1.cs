@@ -86,7 +86,7 @@ namespace GPL2015_Assembler
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-                saveFileDialog.Filter = "GPL2015 Assembler (*.asm)|*.asm|txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveFileDialog.Filter = "GPL2015 Assembler (*.asm)|*.asm|All files (*.*)|*.*";
                 saveFileDialog.FilterIndex = 0;
                 saveFileDialog.RestoreDirectory = true;
 
@@ -221,12 +221,19 @@ namespace GPL2015_Assembler
             if (operation.Contains("LDA,"))
             {
                 String load = operation.Replace("LDA,", "");
-                string bin = Convert.ToString(int.Parse(load), 2);
+                load = load.Replace("-", "");
 
+                String hex = load.Substring(load.Length - 1);
+                if (hex.Equals("h")||hex.Equals("H"))
+                {
+                    load = load.Replace("h", "");
+                    load = load.Replace("H", "");
+                }
+
+               
                 if (load != "B" && load != "C")
                 {
-                    int res = 0;
-                    return int.TryParse(load, out res);
+                    return System.Text.RegularExpressions.Regex.IsMatch(load, @"\A\b[0-9a-fA-F]+\b\Z");
                 }
                 else { return false; }
             }
@@ -336,7 +343,7 @@ namespace GPL2015_Assembler
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-            saveFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog.Filter = "Beta 80 roms (*.b80)|*.b80|All files (*.*)|*.*";
             saveFileDialog.FilterIndex = 0;
             saveFileDialog.RestoreDirectory = true;
 
@@ -482,102 +489,122 @@ namespace GPL2015_Assembler
 
         public void execute (string operation)
         {
-            if(opcodes.Count != 0){
-                output.ShowMessage("Provo ad eseguire " + operation);
-                if (specialLoad(operation))
+            try
+            {
+                if (opcodes.Count != 0)
                 {
-                    output.ShowMessage("trovata opzione speciale con fattore " + operation.Replace("LDA,", ""));
-
-                    int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,n"));
-                    outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-                    
-                    if(int.Parse(operation.Replace("LDA,", "")) < 0)
+                    output.ShowMessage("Provo ad eseguire " + operation);
+                    if (specialLoad(operation))
                     {
-                        String num = operation.Replace("LDA,", "");
-                        num = num.Replace("-", "");
-                        string bin = Convert.ToString(int.Parse(num), 2);
-                        bin = onecomplement(bitconvert(bin));
+                        output.ShowMessage("trovata opzione speciale con fattore " + operation.Replace("LDA,", ""));
 
-                        int dec = Convert.ToInt32(bin, 2);
-                        dec++;
-                        String final = Convert.ToString(dec, 2);
-                        outputBox.Text = outputBox.Text + final + Environment.NewLine;
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,n"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        String hex = operation.Substring(operation.Length - 1);
+                        if (hex.Equals("h") || hex.Equals("H"))
+                        {
+                            String num = operation.Replace("LDA,", "");
+                            num = num.Replace("h", "");
+                            num = num.Replace("H", "");
+                            int dec = Convert.ToInt32(num, 16);
+                            String bin = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        }
+                        else if (int.Parse(operation.Replace("LDA,", "")) < 0)
+                        {
+                            String num = operation.Replace("LDA,", "");
+                            num = num.Replace("-", "");
+                            string bin = Convert.ToString(int.Parse(num), 2);
+                            bin = onecomplement(bitconvert(bin));
+
+                            int dec = Convert.ToInt32(bin, 2);
+                            dec++;
+                            String final = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
+
+                        }
+                        else
+                        {
+
+                            string bin = Convert.ToString(int.Parse(operation.Replace("LDA,", "")), 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+
+                        }
 
                     }
-                    else if (checkbinary(operation.Replace("LDA,", "")))
+                    else if (specialJp(operation))
                     {
-                        outputBox.Text = outputBox.Text + bitconvert(operation.Replace("LDA,", "")) + Environment.NewLine;
+                        output.ShowMessage("trovato jump con indirizzo " + operation.Replace("JP", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JP"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JP", "")) + Environment.NewLine;
+                    }
+                    else if (specialJPP(operation))
+                    {
+                        output.ShowMessage("trovato jump positivo con indirizzo " + operation.Replace("JPP,", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPP,"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPP,", "")) + Environment.NewLine;
+                    }
+                    else if (specialJPM(operation))
+                    {
+                        output.ShowMessage("trovato jump negativo con indirizzo " + operation.Replace("JPM,", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPM,"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPM,", "")) + Environment.NewLine;
                     }
                     else
                     {
-                        string bin = Convert.ToString(int.Parse(operation.Replace("LDA,", "")), 2);
-                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        switch (operation)
+                        {
+                            case "HALT":
+                                break;
+                            case "LDA,B":
+                                break;
+                            case "LDA,C":
+                                break;
+                            case "LDB,A":
+                                break;
+                            case "LDC,A":
+                                break;
+                            case "ADDA,B":
+                                addab();
+                                break;
+                            case "ADDA,C":
+                                addac();
+                                break;
+                            case "INA":
+                                ina();
+                                break;
+                            case "SUBA,C":
+                                subac();
+                                break;
+                            case "INCB":
+                                break;
+                            case "OUTA":
+                                break;
+                            case "DECB":
+                                break;
+                        }
                     }
-
-                }
-                else if (specialJp(operation))
-                {
-                    output.ShowMessage("trovato jump con indirizzo " + operation.Replace("JP", ""));
-
-                    int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JP"));
-                    outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-                    outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JP", "")) + Environment.NewLine;
-                }
-                else if (specialJPP(operation))
-                {
-                    output.ShowMessage("trovato jump positivo con indirizzo " + operation.Replace("JPP,", ""));
-
-                    int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPP,"));
-                    outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-                    outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPP,", "")) + Environment.NewLine;
-                }
-                else if (specialJPM(operation))
-                {
-                    output.ShowMessage("trovato jump negativo con indirizzo " + operation.Replace("JPM,", ""));
-
-                    int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPM,"));
-                    outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-                    outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPM,", "")) + Environment.NewLine;
                 }
                 else
                 {
-                    switch (operation)
-                    {
-                        case "HALT":
-                            break;
-                        case "LDA,B":
-                            break;
-                        case "LDA,C":
-                            break;
-                        case "LDB,A":
-                            break;
-                        case "LDC,A":
-                            break;
-                        case "ADDA,B":
-                            addab();
-                            break;
-                        case "ADDA,C":
-                            addac();
-                            break;
-                        case "INA":
-                            ina();
-                            break;
-                        case "SUBA,C":
-                            subac();
-                            break;
-                        case "INCB":
-                            break;
-                        case "OUTA":
-                            break;
-                        case "DECB":
-                            break;
-                    }
+                    MessageBox.Show("Non hai caricato nessuna configurazione", "Errore di configurazione");
                 }
-            }else{
-                MessageBox.Show("Non hai caricato nessuna configurazione", "Errore di configurazione");
+
+            }
+            catch (Exception e)
+            {
+                
+                MessageBox.Show("controlla di aver scritto tutto correttamente, rispettando minuscole e maiuscole come nella legenda.", "Errore di sintassi",MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
         }
@@ -668,7 +695,7 @@ namespace GPL2015_Assembler
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.InitialDirectory = "c:\\";
-            openFileDialog1.Filter = "GPL2015 Assembler (*.asm)|*.asm|txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            openFileDialog1.Filter = "GPL2015 Assembler (*.asm)|*.asm|All files (*.*)|*.*";
             openFileDialog1.FilterIndex = 0;
             openFileDialog1.RestoreDirectory = true;
 
