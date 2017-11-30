@@ -29,6 +29,8 @@ namespace GPL2015_Assembler
         public List<String> labelindex = new List<string>();
         public List<int> inputToOutput = new List<int>();
 
+        private Random rnd = new Random();
+        Color randomColor;
 
 
         public Form1()
@@ -42,8 +44,9 @@ namespace GPL2015_Assembler
             this.AllowDrop = true;
             this.DragEnter += new DragEventHandler(Form1_DragEnter);
             this.DragDrop += new DragEventHandler(Form1_DragDrop);
+            randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
-            
+
 
             configdownload();
             InputText.AcceptsTab = true;
@@ -249,12 +252,14 @@ namespace GPL2015_Assembler
             switch (bin.Length)
             {
                 case 1:
-                    return "000" + bin;
+                    return "0000" + bin;
                 case 2:
-                    return "00" + bin;
+                    return "000" + bin;
                 case 3:
-                    return "0" + bin;
+                    return "00" + bin;
                 case 4:
+                    return "0" + bin;
+                case 5:
                     return bin;
             }
 
@@ -275,7 +280,21 @@ namespace GPL2015_Assembler
             }
         }
 
-       
+
+        public bool specialLDAN(string operation)
+        {
+            string tagliata = operation.Replace("LDA,", "");
+            if (operation.Contains("LDA,") && tagliata[0].Equals('(') && tagliata[tagliata.Length - 1].Equals(')')) // && (tagliata[0].Equals("(") && tagliata[tagliata.Length - 1].Equals(")"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         public Tuple<bool, String> specialloop(String operation)
         {
             if (operation.Contains(":"))
@@ -423,7 +442,7 @@ namespace GPL2015_Assembler
 
                
 
-                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) )
+                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) )
                 {
                     execute(lineanormale);
                 }
@@ -552,6 +571,24 @@ namespace GPL2015_Assembler
 
                         outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPP,", "")) + Environment.NewLine;
                     }
+                    else if (specialLDAN(operation))
+                    {
+                        output.ShowMessage("trovato caricamento da memoria con indrizzo " + operation.Replace("LDAN,", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,addr"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+                        string tores = operation.Replace("LDA,(", "");
+                        tores = tores.Replace(")", "");
+
+                        int dec = Convert.ToInt32(tores, 16);
+                        String bin = Convert.ToString(dec, 2);
+
+
+                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+
+
+
+                    }
                     else if (specialJPM(operation))
                     {
                         output.ShowMessage("trovato jump negativo con indirizzo " + operation.Replace("JPM,", ""));
@@ -604,7 +641,7 @@ namespace GPL2015_Assembler
             }
             catch (Exception e)
             {
-                
+                System.Diagnostics.Debug.WriteLine(e.Message);
                 MessageBox.Show("controlla di aver scritto tutto correttamente, rispettando minuscole e maiuscole come nella legenda.", "Errore di sintassi",MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
@@ -751,10 +788,10 @@ namespace GPL2015_Assembler
                 outputBox.SelectionColor = Color.Black;
                 int charindex = outputBox.GetFirstCharIndexFromLine(inputToOutput[currentline]);
                 
-                outputBox.Select(charindex, 4);
+                outputBox.Select(charindex, 5);
                 
 
-                outputBox.SelectionColor = Color.Blue;
+                outputBox.SelectionColor = randomColor;
 
             }
 
