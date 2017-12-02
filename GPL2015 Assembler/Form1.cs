@@ -267,6 +267,18 @@ namespace GPL2015_Assembler
         
         }
 
+        public bool specialJPZ(string operation)
+        {
+            if (operation.Contains("JPZ,"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
         public bool specialJPP(string operation)
         {
@@ -348,7 +360,7 @@ namespace GPL2015_Assembler
         {
             if (operation.Contains("JP"))
             {
-                if(operation.Contains("JPP,")|| operation.Contains("JPM,"))
+                if(operation.Contains("JPP,")|| operation.Contains("JPM,")|| operation.Contains("JPZ,"))
                 {
                     return false;
                 }
@@ -459,7 +471,7 @@ namespace GPL2015_Assembler
 
                
 
-                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) )
+                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) || specialJPZ(lineanormale))
                 {
                     execute(lineanormale);
                 }
@@ -587,6 +599,15 @@ namespace GPL2015_Assembler
                         outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
 
                         outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPP,", "")) + Environment.NewLine;
+                    }
+                    else if (specialJPZ(operation))
+                    {
+                        output.ShowMessage("trovato jump di ugualinza con indirizzo " + operation.Replace("JPZ,", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPZ,"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPZ,", "")) + Environment.NewLine;
                     }
                     else if (specialLDAN(operation))
                     {
@@ -794,9 +815,10 @@ namespace GPL2015_Assembler
             String url = "https://raw.githubusercontent.com/AlessioGiacobbe/Microprocessor-2017/master/config";
                      
             WebClient myWebClient = new WebClient();
-            myWebClient.DownloadFile(url, Path.GetTempPath() + "config");
-
-            openconfig(Path.GetTempPath() + "config");
+            DateTime today = DateTime.Now;
+            string now = today.ToString("ddMMyyyy");
+            myWebClient.DownloadFile(url, Path.GetTempPath() + "config" + now);
+            openconfig(Path.GetTempPath() + "config" + now);
             
         }
 
