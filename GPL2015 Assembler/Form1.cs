@@ -281,10 +281,27 @@ namespace GPL2015_Assembler
         }
 
 
+        public bool specialLDNA(string operation)
+        {
+            string tagliata = operation.Replace("LD", "");
+            tagliata = tagliata.Replace(",A", "");
+            string content = tagliata.Replace("(", "").Replace(")", "");
+            if (operation.Contains("LD") && operation.Contains(",A") && tagliata[0].Equals('(') && tagliata[tagliata.Length - 1].Equals(')') && content != "B") // && (tagliata[0].Equals("(") && tagliata[tagliata.Length - 1].Equals(")"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         public bool specialLDAN(string operation)
         {
             string tagliata = operation.Replace("LDA,", "");
-            if (operation.Contains("LDA,") && tagliata[0].Equals('(') && tagliata[tagliata.Length - 1].Equals(')')) // && (tagliata[0].Equals("(") && tagliata[tagliata.Length - 1].Equals(")"))
+            string content = tagliata.Replace("(", "").Replace(")","");
+            if (operation.Contains("LDA,") && tagliata[0].Equals('(') && tagliata[tagliata.Length - 1].Equals(')') && content != "B") // && (tagliata[0].Equals("(") && tagliata[tagliata.Length - 1].Equals(")"))
             {
                 return true;
             }
@@ -442,7 +459,7 @@ namespace GPL2015_Assembler
 
                
 
-                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) )
+                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) )
                 {
                     execute(lineanormale);
                 }
@@ -582,11 +599,22 @@ namespace GPL2015_Assembler
 
                         int dec = Convert.ToInt32(tores, 16);
                         String bin = Convert.ToString(dec, 2);
+                        
+                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        
+                    }
+                    else if (specialLDNA(operation))
+                    {
+                        output.ShowMessage("trovato caricamento in memoria su indrizzo " + operation.Replace("LD", "").Replace(",A",""));
 
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDaddr,A"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+                        string tores = operation.Replace("LD(", "").Replace("),A","");
+
+                        int dec = Convert.ToInt32(tores, 16);
+                        String bin = Convert.ToString(dec, 2);
 
                         outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-
-
 
                     }
                     else if (specialJPM(operation))
