@@ -618,10 +618,43 @@ namespace GPL2015_Assembler
                         string tores = operation.Replace("LDA,(", "");
                         tores = tores.Replace(")", "");
 
-                        int dec = Convert.ToInt32(tores, 16);
-                        String bin = Convert.ToString(dec, 2);
-                        
-                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        /*int dec = Convert.ToInt32(tores, 16);
+                        String bin = Convert.ToString(dec, 2);*/
+
+
+
+                        String hex = tores.Substring(tores.Length - 1);
+                        if (hex.Equals("h") || hex.Equals("H"))
+                        {
+                            string num = tores.Replace("h", "");
+                            num = num.Replace("H", "");
+                            int dec = Convert.ToInt32(num, 16);
+                            String bin = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        }
+                        else if (int.Parse(tores) < 0)
+                        {
+                            string num = tores.Replace("-", "");
+                            string bin = Convert.ToString(int.Parse(num), 2);
+                            bin = onecomplement(bitconvert(bin));
+
+                            int dec = Convert.ToInt32(bin, 2);
+                            dec++;
+                            String final = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
+
+                        }
+                        else
+                        {
+
+                            string bin = Convert.ToString(int.Parse(tores), 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+
+                        }
+
+
+
+                        //outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
                         
                     }
                     else if (specialLDNA(operation))
@@ -632,10 +665,42 @@ namespace GPL2015_Assembler
                         outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
                         string tores = operation.Replace("LD(", "").Replace("),A","");
 
-                        int dec = Convert.ToInt32(tores, 16);
+
+
+
+                        String hex = tores.Substring(tores.Length - 1);
+                        if (hex.Equals("h") || hex.Equals("H"))
+                        {
+                            string num = tores.Replace("h", "");
+                            num = num.Replace("H", "");
+                            int dec = Convert.ToInt32(num, 16);
+                            String bin = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        }
+                        else if (int.Parse(tores) < 0)
+                        {
+                            string num = tores.Replace("-", "");
+                            string bin = Convert.ToString(int.Parse(num), 2);
+                            bin = onecomplement(bitconvert(bin));
+
+                            int dec = Convert.ToInt32(bin, 2);
+                            dec++;
+                            String final = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
+
+                        }
+                        else
+                        {
+
+                            string bin = Convert.ToString(int.Parse(tores), 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+
+                        }
+
+                        /*int dec = Convert.ToInt32(tores, 16);
                         String bin = Convert.ToString(dec, 2);
 
-                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;*/
 
                     }
                     else if (specialJPM(operation))
