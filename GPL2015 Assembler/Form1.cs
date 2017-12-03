@@ -279,6 +279,18 @@ namespace GPL2015_Assembler
             }
         }
 
+        public bool specialJPNZ(string operation)
+        {
+            if (operation.Contains("JPNZ,"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
         public bool specialJPP(string operation)
         {
@@ -360,7 +372,7 @@ namespace GPL2015_Assembler
         {
             if (operation.Contains("JP"))
             {
-                if(operation.Contains("JPP,")|| operation.Contains("JPM,")|| operation.Contains("JPZ,"))
+                if(operation.Contains("JPP,")|| operation.Contains("JPM,")|| operation.Contains("JPZ,") || operation.Contains("JPNZ,"))
                 {
                     return false;
                 }
@@ -471,7 +483,7 @@ namespace GPL2015_Assembler
 
                
 
-                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) || specialJPZ(lineanormale))
+                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) || specialJPZ(lineanormale) || specialJPNZ(lineanormale))
                 {
                     execute(lineanormale);
                 }
@@ -599,6 +611,15 @@ namespace GPL2015_Assembler
                         outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
 
                         outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPP,", "")) + Environment.NewLine;
+                    }
+                    else if (specialJPNZ(operation))
+                    {
+                        output.ShowMessage("trovato jump di non ugualinza con indirizzo " + operation.Replace("JPNZ,", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPNZ,"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPNZ,", "")) + Environment.NewLine;
                     }
                     else if (specialJPZ(operation))
                     {
