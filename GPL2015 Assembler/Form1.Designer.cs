@@ -40,6 +40,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.carica = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -216,11 +217,24 @@
             this.carica.UseVisualStyleBackColor = true;
             this.carica.Click += new System.EventHandler(this.carica_Click);
             // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.ForeColor = System.Drawing.SystemColors.AppWorkspace;
+            this.label1.Location = new System.Drawing.Point(646, 2);
+            this.label1.Margin = new System.Windows.Forms.Padding(0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(32, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "V 1.0";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(697, 544);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.carica);
             this.Controls.Add(this.linkLabel2);
             this.Controls.Add(this.button2);
@@ -262,6 +276,7 @@
         private System.Windows.Forms.Label linecount;
         private System.Windows.Forms.RichTextBox outputBox;
         private System.Windows.Forms.Button carica;
+        private System.Windows.Forms.Label label1;
     }
 }
 
