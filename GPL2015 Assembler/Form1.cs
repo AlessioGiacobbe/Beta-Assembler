@@ -747,16 +747,16 @@ namespace GPL2015_Assembler
                                 break;
                             case "LDC,A":
                                 break;
-                            case "ADDA,B":
+                            case "ADDB":
                                 addab();
                                 break;
-                            case "ADDA,C":
+                            case "ADDC":
                                 addac();
                                 break;
                             case "INA":
                                 ina();
                                 break;
-                            case "SUBA,C":
+                            case "SUBC":
                                 subac();
                                 break;
                             case "INCB":
