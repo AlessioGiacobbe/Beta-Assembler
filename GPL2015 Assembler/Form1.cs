@@ -247,6 +247,34 @@ namespace GPL2015_Assembler
             }
         }
 
+
+        public bool specialLoadB(String operation)
+        {
+            if (operation.Contains("LDB,"))
+            {
+                String load = operation.Replace("LDB,", "");
+                load = load.Replace("-", "");
+
+                String hex = load.Substring(load.Length - 1);
+                if (hex.Equals("h") || hex.Equals("H"))
+                {
+                    load = load.Replace("h", "");
+                    load = load.Replace("H", "");
+                }
+
+
+                if (load != "A" && load != "C")
+                {
+                    return System.Text.RegularExpressions.Regex.IsMatch(load, @"\A\b[0-9a-fA-F]+\b\Z");
+                }
+                else { return false; }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public String bitconvert(String bin) {
 
             switch (bin.Length)
@@ -483,7 +511,7 @@ namespace GPL2015_Assembler
 
                
 
-                    if (specialLoad(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) || specialJPZ(lineanormale) || specialJPNZ(lineanormale))
+                    if (specialLoad(lineanormale)|| specialLoadB(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) || specialJPZ(lineanormale) || specialJPNZ(lineanormale))
                 {
                     execute(lineanormale);
                 }
@@ -589,6 +617,45 @@ namespace GPL2015_Assembler
                         {
 
                             string bin = Convert.ToString(int.Parse(operation.Replace("LDA,", "")), 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+
+                        }
+
+                    }
+                    else if (specialLoadB(operation))
+                    {
+                        output.ShowMessage("trovata opzione speciale su B con fattore " + operation.Replace("LDA,", ""));
+
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDB,n"));
+                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+
+                        String hex = operation.Substring(operation.Length - 1);
+                        if (hex.Equals("h") || hex.Equals("H"))
+                        {
+                            String num = operation.Replace("LDB,", "");
+                            num = num.Replace("h", "");
+                            num = num.Replace("H", "");
+                            int dec = Convert.ToInt32(num, 16);
+                            String bin = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
+                        }
+                        else if (int.Parse(operation.Replace("LDB,", "")) < 0)
+                        {
+                            String num = operation.Replace("LDB,", "");
+                            num = num.Replace("-", "");
+                            string bin = Convert.ToString(int.Parse(num), 2);
+                            bin = onecomplement(bitconvert(bin));
+
+                            int dec = Convert.ToInt32(bin, 2);
+                            dec++;
+                            String final = Convert.ToString(dec, 2);
+                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
+
+                        }
+                        else
+                        {
+
+                            string bin = Convert.ToString(int.Parse(operation.Replace("LDB,", "")), 2);
                             outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
 
                         }
