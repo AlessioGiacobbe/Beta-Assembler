@@ -41,6 +41,7 @@
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.carica = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -161,7 +162,7 @@
             this.operations.Location = new System.Drawing.Point(12, 381);
             this.operations.Multiline = true;
             this.operations.Name = "operations";
-            this.operations.Size = new System.Drawing.Size(673, 151);
+            this.operations.Size = new System.Drawing.Size(673, 138);
             this.operations.TabIndex = 4;
             // 
             // label3
@@ -227,13 +228,26 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 10;
-            this.label1.Text = "V 1.0";
+            this.label1.Text = "V 1.1";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label4.AutoSize = true;
+            this.label4.ForeColor = System.Drawing.SystemColors.AppWorkspace;
+            this.label4.Location = new System.Drawing.Point(12, 522);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(67, 13);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "caricato da *";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(697, 544);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.carica);
             this.Controls.Add(this.linkLabel2);
@@ -277,6 +291,7 @@
         private System.Windows.Forms.RichTextBox outputBox;
         private System.Windows.Forms.Button carica;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label4;
     }
 }
 

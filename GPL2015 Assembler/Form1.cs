@@ -47,8 +47,18 @@ namespace GPL2015_Assembler
             randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
 
+            if (WindowsFormsApp1.Properties.Settings.Default.path == "null")
+            {
+                configdownload();
+                label4.Text = "Caricato dalla rete";
+            }
+            else
+            {
+                openconfig(WindowsFormsApp1.Properties.Settings.Default.path);
+                label4.Text = "Caricato da " + WindowsFormsApp1.Properties.Settings.Default.path;
 
-            configdownload();
+
+            }
             InputText.AcceptsTab = true;
         }
 
@@ -112,9 +122,15 @@ namespace GPL2015_Assembler
             openFileDialog1.FilterIndex = 2;
             openFileDialog1.RestoreDirectory = true;
 
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 openconfig(openFileDialog1.FileName);
+                WindowsFormsApp1.Properties.Settings.Default.path = openFileDialog1.FileName;
+                WindowsFormsApp1.Properties.Settings.Default.Save();
+                label4.Text = "Caricato da " + WindowsFormsApp1.Properties.Settings.Default.path;
+
+
             }
         }
 
@@ -122,25 +138,32 @@ namespace GPL2015_Assembler
         {
             try
             {
-                String[] linee = System.IO.File.ReadAllLines(filepath);
-                operations.Text = null;
-                operations.Text = "OpCode | Assembly" + Environment.NewLine;
-                foreach (String linea in linee)
-                {
-                    String Opcode = linea.Substring(0, linea.IndexOf(' '));
-                    String Assembly = linea.Remove(0, linea.IndexOf(' ') + 1);
-                    opcodes.Add(Opcode);
-                    Assembly = Regex.Replace(Assembly, @"\s", "");
-                    AssemblyCodes.Add(Assembly);
-                    Console.Write(opcodes.Count + "lungo");
-                    operations.Text = operations.Text + Opcode + " | " + Assembly + System.Environment.NewLine;
+                
+                    String[] linee = System.IO.File.ReadAllLines(filepath);
+                    operations.Text = null;
+                    operations.Text = "OpCode | Assembly" + Environment.NewLine;
+                    foreach (String linea in linee)
+                    {
+                        String Opcode = linea.Substring(0, linea.IndexOf(' '));
+                        String Assembly = linea.Remove(0, linea.IndexOf(' ') + 1);
+                        opcodes.Add(Opcode);
+                        Assembly = Regex.Replace(Assembly, @"\s", "");
+                        AssemblyCodes.Add(Assembly);
+                        Console.Write(opcodes.Count + "lungo");
+                        operations.Text = operations.Text + Opcode + " | " + Assembly + System.Environment.NewLine;
 
-                }
+                    }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                MessageBox.Show("impossibile caricare il file da disco, scarico dalla rete");
+
+                WindowsFormsApp1.Properties.Settings.Default.path = "null";
+                WindowsFormsApp1.Properties.Settings.Default.Save();
+                configdownload();
+                label4.Text = "Caricato dalla rete";
+
             }
         }
 
@@ -972,12 +995,13 @@ namespace GPL2015_Assembler
             string now = today.ToString("ddMMyyyy");
             myWebClient.DownloadFile(url, Path.GetTempPath() + "config" + now);
             openconfig(Path.GetTempPath() + "config" + now);
-            
+            label4.Text = "Caricato dalla rete";
+
         }
 
-        
 
-        
+
+
 
         private void detectchange(object sender, EventArgs e)
         {
@@ -1003,6 +1027,11 @@ namespace GPL2015_Assembler
         private void carica_Click(object sender, EventArgs e)
         {
             loadfile();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
