@@ -20,6 +20,10 @@ namespace GPL2015_Assembler
         string outstringval;
         public List<String> opcodes = new List<string>();
         public List<String> AssemblyCodes = new List<string>();
+        public List<String> AssemblyCodesComposed = new List<string>();
+
+
+
         public List<String> Labels = new List<string>();
         public List<String> lines = new List<string>();
         public List<String> outputlines = new List<string>();
@@ -138,18 +142,27 @@ namespace GPL2015_Assembler
         {
             try
             {
-                
-                    String[] linee = System.IO.File.ReadAllLines(filepath);
+                opcodes.Clear();
+                AssemblyCodes.Clear();
+
+                String[] linee = System.IO.File.ReadAllLines(filepath);
                     operations.Text = null;
                     operations.Text = "OpCode | Assembly" + Environment.NewLine;
                     foreach (String linea in linee)
                     {
+                        
                         String Opcode = linea.Substring(0, linea.IndexOf(' '));
                         String Assembly = linea.Remove(0, linea.IndexOf(' ') + 1);
                         opcodes.Add(Opcode);
+
+                    if (Assembly.Contains(" n") || Assembly.Contains(",n"))
+                    {
+                        String composed = Assembly.Replace(" n", "").Replace(",n", "");
+                        AssemblyCodesComposed.Add(Regex.Replace(composed, @"\s", ""));
+                    }
                         Assembly = Regex.Replace(Assembly, @"\s", "");
                         AssemblyCodes.Add(Assembly);
-                        Console.Write(opcodes.Count + "lungo");
+                        //Console.Write(opcodes.Count + "lungo");
                         operations.Text = operations.Text + Opcode + " | " + Assembly + System.Environment.NewLine;
 
                     }
@@ -210,7 +223,7 @@ namespace GPL2015_Assembler
             inputToOutput.Clear();
 
             Preload();
-            output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "--- Modalità senza esecuzione");
+            output.ShowMessage("---Avvio compilazione" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + "---");
             
             compile();
         }
@@ -371,21 +384,7 @@ namespace GPL2015_Assembler
             }
         }
 
-
-        public bool specialLDAN(string operation)
-        {
-            string tagliata = operation.Replace("LDA,", "");
-            string content = tagliata.Replace("(", "").Replace(")","");
-            if (operation.Contains("LDA,") && tagliata[0].Equals('(') && tagliata[tagliata.Length - 1].Equals(')') && content != "B") // && (tagliata[0].Equals("(") && tagliata[tagliata.Length - 1].Equals(")"))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
+        
 
         public Tuple<bool, String> specialloop(String operation)
         {
@@ -534,20 +533,37 @@ namespace GPL2015_Assembler
 
                
 
-                    if (specialLoad(lineanormale)|| specialLoadB(lineanormale)|| specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialLDAN(lineanormale) || specialLDNA(lineanormale) || specialJPZ(lineanormale) || specialJPNZ(lineanormale))
+                    if ( specialJp(lineanormale) || specialJPP(lineanormale) || specialJPM(lineanormale) || specialJPZ(lineanormale) || specialJPNZ(lineanormale))
                 {
+                    //specialLoad(lineanormale)|| specialLoadB(lineanormale)||
                     execute(lineanormale);
                 }
                 else
                 {
+                    
+
                     asscode = containsasscode(lineanormale);
-                    if (asscode.Equals("INA"))
+
+
+                    if (lineanormale.Any(char.IsDigit))
                     {
-                        execute(lineanormale);
+                       int inizio = lineanormale.IndexOfAny("0123456789".ToCharArray());
+                        string numero = lineanormale.Substring(inizio, lineanormale.Length - inizio);
+                        string codice = lineanormale.Substring(0, inizio);
+                        if(codice.EndsWith(","))
+                            codice = codice.Remove(codice.Length - 1);
+                        if (AssemblyCodesComposed.Contains(codice))
+                        {
+                            int indice = AssemblyCodes.FindIndex(x => x.StartsWith(codice));
+                            outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
+                            outputBox.Text = outputBox.Text + resolvenumber(numero) + Environment.NewLine;
+
+
+                        }
+
                     }
-                    else if (asscode != "no")
+                     else if (asscode != "no")
                     {
-                        execute(lineanormale);
                         int indice = AssemblyCodes.FindIndex(x => x.StartsWith(asscode));
                         outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
                     }
@@ -605,86 +621,7 @@ namespace GPL2015_Assembler
             {
                 if (opcodes.Count != 0)
                 {
-                    output.ShowMessage("Provo ad eseguire " + operation);
-                    if (specialLoad(operation))
-                    {
-                        output.ShowMessage("trovata opzione speciale con fattore " + operation.Replace("LDA,", ""));
-
-                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,n"));
-                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-                        String hex = operation.Substring(operation.Length - 1);
-                        if (hex.Equals("h") || hex.Equals("H"))
-                        {
-                            String num = operation.Replace("LDA,", "");
-                            num = num.Replace("h", "");
-                            num = num.Replace("H", "");
-                            int dec = Convert.ToInt32(num, 16);
-                            String bin = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-                        }
-                        else if (int.Parse(operation.Replace("LDA,", "")) < 0)
-                        {
-                            String num = operation.Replace("LDA,", "");
-                            num = num.Replace("-", "");
-                            string bin = Convert.ToString(int.Parse(num), 2);
-                            bin = onecomplement(bitconvert(bin));
-
-                            int dec = Convert.ToInt32(bin, 2);
-                            dec++;
-                            String final = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
-
-                        }
-                        else
-                        {
-
-                            string bin = Convert.ToString(int.Parse(operation.Replace("LDA,", "")), 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-
-                        }
-
-                    }
-                    else if (specialLoadB(operation))
-                    {
-                        output.ShowMessage("trovata opzione speciale su B con fattore " + operation.Replace("LDA,", ""));
-
-                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDB,n"));
-                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-
-                        String hex = operation.Substring(operation.Length - 1);
-                        if (hex.Equals("h") || hex.Equals("H"))
-                        {
-                            String num = operation.Replace("LDB,", "");
-                            num = num.Replace("h", "");
-                            num = num.Replace("H", "");
-                            int dec = Convert.ToInt32(num, 16);
-                            String bin = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-                        }
-                        else if (int.Parse(operation.Replace("LDB,", "")) < 0)
-                        {
-                            String num = operation.Replace("LDB,", "");
-                            num = num.Replace("-", "");
-                            string bin = Convert.ToString(int.Parse(num), 2);
-                            bin = onecomplement(bitconvert(bin));
-
-                            int dec = Convert.ToInt32(bin, 2);
-                            dec++;
-                            String final = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
-
-                        }
-                        else
-                        {
-
-                            string bin = Convert.ToString(int.Parse(operation.Replace("LDB,", "")), 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-
-                        }
-
-                    }
-                    else if (specialJp(operation))
+                   if (specialJp(operation))
                     {
                         output.ShowMessage("trovato jump con indirizzo " + operation.Replace("JP", ""));
 
@@ -720,100 +657,6 @@ namespace GPL2015_Assembler
 
                         outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPZ,", "")) + Environment.NewLine;
                     }
-                    else if (specialLDAN(operation))
-                    {
-                        output.ShowMessage("trovato caricamento da memoria con indrizzo " + operation.Replace("LDAN,", ""));
-
-                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDA,addr"));
-                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-                        string tores = operation.Replace("LDA,(", "");
-                        tores = tores.Replace(")", "");
-
-                        /*int dec = Convert.ToInt32(tores, 16);
-                        String bin = Convert.ToString(dec, 2);*/
-
-
-
-                        String hex = tores.Substring(tores.Length - 1);
-                        if (hex.Equals("h") || hex.Equals("H"))
-                        {
-                            string num = tores.Replace("h", "");
-                            num = num.Replace("H", "");
-                            int dec = Convert.ToInt32(num, 16);
-                            String bin = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-                        }
-                        else if (int.Parse(tores) < 0)
-                        {
-                            string num = tores.Replace("-", "");
-                            string bin = Convert.ToString(int.Parse(num), 2);
-                            bin = onecomplement(bitconvert(bin));
-
-                            int dec = Convert.ToInt32(bin, 2);
-                            dec++;
-                            String final = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
-
-                        }
-                        else
-                        {
-
-                            string bin = Convert.ToString(int.Parse(tores), 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-
-                        }
-
-
-
-                        //outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-                        
-                    }
-                    else if (specialLDNA(operation))
-                    {
-                        output.ShowMessage("trovato caricamento in memoria su indrizzo " + operation.Replace("LD", "").Replace(",A",""));
-
-                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("LDaddr,A"));
-                        outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
-                        string tores = operation.Replace("LD(", "").Replace("),A","");
-
-
-
-
-                        String hex = tores.Substring(tores.Length - 1);
-                        if (hex.Equals("h") || hex.Equals("H"))
-                        {
-                            string num = tores.Replace("h", "");
-                            num = num.Replace("H", "");
-                            int dec = Convert.ToInt32(num, 16);
-                            String bin = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-                        }
-                        else if (int.Parse(tores) < 0)
-                        {
-                            string num = tores.Replace("-", "");
-                            string bin = Convert.ToString(int.Parse(num), 2);
-                            bin = onecomplement(bitconvert(bin));
-
-                            int dec = Convert.ToInt32(bin, 2);
-                            dec++;
-                            String final = Convert.ToString(dec, 2);
-                            outputBox.Text = outputBox.Text + final + Environment.NewLine;
-
-                        }
-                        else
-                        {
-
-                            string bin = Convert.ToString(int.Parse(tores), 2);
-                            outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;
-
-                        }
-
-                        /*int dec = Convert.ToInt32(tores, 16);
-                        String bin = Convert.ToString(dec, 2);
-
-                        outputBox.Text = outputBox.Text + bitconvert(bin) + Environment.NewLine;*/
-
-                    }
                     else if (specialJPM(operation))
                     {
                         output.ShowMessage("trovato jump negativo con indirizzo " + operation.Replace("JPM,", ""));
@@ -822,40 +665,6 @@ namespace GPL2015_Assembler
                         outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
 
                         outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JPM,", "")) + Environment.NewLine;
-                    }
-                    else
-                    {
-                        switch (operation)
-                        {
-                            case "HALT":
-                                break;
-                            case "LDA,B":
-                                break;
-                            case "LDA,C":
-                                break;
-                            case "LDB,A":
-                                break;
-                            case "LDC,A":
-                                break;
-                            case "ADDB":
-                                addab();
-                                break;
-                            case "ADDC":
-                                addac();
-                                break;
-                            case "INA":
-                                ina();
-                                break;
-                            case "SUBC":
-                                subac();
-                                break;
-                            case "INCB":
-                                break;
-                            case "OUTA":
-                                break;
-                            case "DECB":
-                                break;
-                        }
                     }
                 }
                 else
@@ -997,6 +806,43 @@ namespace GPL2015_Assembler
             openconfig(Path.GetTempPath() + "config" + now);
             label4.Text = "Caricato dalla rete";
 
+        }
+
+
+        public string resolvenumber(string operation)
+        {
+            int operint = 0;
+            String hex = operation.Substring(operation.Length - 1);
+            if (!(hex.Equals("h") || hex.Equals("H")))
+            {
+                 operint = int.Parse(operation);
+            }
+            if (hex.Equals("h") || hex.Equals("H"))
+            {
+                String num = operation.Replace("LDB,", "");
+                num = num.Replace("h", "");
+                num = num.Replace("H", "");
+                int dec = Convert.ToInt32(num, 16);
+                String bin = Convert.ToString(dec, 2);
+                return bitconvert(bin);
+            }
+            else if (operint <0)
+            {
+                string bin = Convert.ToString(operint, 2);
+                bin = onecomplement(bitconvert(bin));
+                int dec = Convert.ToInt32(bin, 2);
+                dec++;
+                String final = Convert.ToString(dec, 2);
+                return final; 
+
+            }
+            else
+            {
+
+                string bin = Convert.ToString(operint, 2);
+                return bitconvert(bin);
+
+            }
         }
 
 
