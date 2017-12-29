@@ -157,8 +157,7 @@ namespace GPL2015_Assembler
 
                     if (Assembly.Contains(" n") || Assembly.Contains(",n"))
                     {
-                        String composed = Assembly.Replace(" n", "").Replace(",n", "");
-                        AssemblyCodesComposed.Add(Regex.Replace(composed, @"\s", ""));
+                        AssemblyCodesComposed.Add(Regex.Replace(Assembly, @"\s", ""));
                     }
                         Assembly = Regex.Replace(Assembly, @"\s", "");
                         AssemblyCodes.Add(Assembly);
@@ -316,14 +315,20 @@ namespace GPL2015_Assembler
             switch (bin.Length)
             {
                 case 1:
-                    return "0000" + bin;
+                    return "0000000" + bin;
                 case 2:
-                    return "000" + bin;
+                    return "000000" + bin;
                 case 3:
-                    return "00" + bin;
+                    return "00000" + bin;
                 case 4:
-                    return "0" + bin;
+                    return "0000" + bin;
                 case 5:
+                    return "000" + bin;
+                case 6:
+                    return "00" + bin;
+                case 7:
+                    return "0" + bin;
+                case 8:
                     return bin;
             }
 
@@ -550,8 +555,20 @@ namespace GPL2015_Assembler
                        int inizio = lineanormale.IndexOfAny("0123456789".ToCharArray());
                         string numero = lineanormale.Substring(inizio, lineanormale.Length - inizio);
                         string codice = lineanormale.Substring(0, inizio);
-                        if(codice.EndsWith(","))
-                            codice = codice.Remove(codice.Length - 1);
+
+                        if (codice.EndsWith(","))
+                        {
+                            codice = codice + "n";
+
+                        }
+                        else
+                        {
+                            codice = codice + " n";
+                        }
+
+                        codice = Regex.Replace(codice, @"\s", "");
+
+
                         if (AssemblyCodesComposed.Contains(codice))
                         {
                             int indice = AssemblyCodes.FindIndex(x => x.StartsWith(codice));
@@ -703,25 +720,7 @@ namespace GPL2015_Assembler
         }
 
        
-
-        void addab()
-        {
-            //RegA = RegA + RegB;
-        }
-
-        void addac()
-        {
-           
-
-            //RegA = RegA + RegC;
-        }
-
-        void subac()
-        {
-            
-
-            // RegA = RegA - RegC;
-        }
+        
 
         public int toint(String number)
         {
@@ -797,7 +796,7 @@ namespace GPL2015_Assembler
         void configdownload()
         {
 
-            String url = "https://raw.githubusercontent.com/AlessioGiacobbe/Microprocessor-2017/master/config";
+            String url = "https://raw.githubusercontent.com/AlessioGiacobbe/BetaMp-2017/master/config%208bit";
                      
             WebClient myWebClient = new WebClient();
             DateTime today = DateTime.Now;
@@ -861,7 +860,7 @@ namespace GPL2015_Assembler
                 outputBox.SelectionColor = Color.Black;
                 int charindex = outputBox.GetFirstCharIndexFromLine(inputToOutput[currentline]);
                 
-                outputBox.Select(charindex, 5);
+                outputBox.Select(charindex, 8);
                 
 
                 outputBox.SelectionColor = randomColor;
