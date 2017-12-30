@@ -54,7 +54,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(63, 31);
             this.button1.TabIndex = 0;
-            this.button1.Text = "compila";
+            this.button1.Text = "Assembla";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -228,7 +228,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 10;
-            this.label1.Text = "V 2.1";
+            this.label1.Text = "V 2.2";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label4

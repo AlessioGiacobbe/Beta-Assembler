@@ -459,7 +459,7 @@ namespace GPL2015_Assembler
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-            saveFileDialog.Filter = "Beta 80 roms (*.b80)|*.b80|All files (*.*)|*.*";
+            saveFileDialog.Filter = "B2018 roms (*.b18)|*.b18|All files (*.*)|*.*";
             saveFileDialog.FilterIndex = 0;
             saveFileDialog.RestoreDirectory = true;
 
