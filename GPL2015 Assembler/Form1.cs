@@ -642,7 +642,7 @@ namespace GPL2015_Assembler
                     {
                         output.ShowMessage("trovato jump con indirizzo " + operation.Replace("JP", ""));
 
-                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JP"));
+                        int indice = AssemblyCodes.FindIndex(x => x.StartsWith("JPaddr"));
                         outputBox.Text = outputBox.Text + opcodes[indice] + Environment.NewLine;
 
                         outputBox.Text = outputBox.Text + resolvelabel(operation.Replace("JP", "")) + Environment.NewLine;
